@@ -148,7 +148,11 @@
 					<artifactId>maven-surefire-report-plugin</artifactId>
 					<version>${surefire.plugin.version}</version>
 				</plugin>
-
+				<plugin>
+					<groupId>org.eluder.coveralls</groupId>
+					<artifactId>coveralls-maven-plugin</artifactId>
+					<version>4.3.0</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -215,6 +219,12 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eluder.coveralls</groupId>
+				<artifactId>coveralls-maven-plugin</artifactId>
+				<version>4.3.0</version>
 			</plugin>
 
 			<!-- Runs the Junit tests -->
