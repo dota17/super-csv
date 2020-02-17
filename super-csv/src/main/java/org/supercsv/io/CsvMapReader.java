@@ -51,21 +51,6 @@ public class CsvMapReader extends AbstractCsvReader implements ICsvMapReader {
 	}
 	
 	/**
-	 * Constructs a new <tt>CsvMapReader</tt> with the supplied (custom) Tokenizer and CSV preferences. The tokenizer
-	 * should be set up with the Reader (CSV input) and CsvPreference beforehand.
-	 * 
-	 * @param tokenizer
-	 *            the tokenizer
-	 * @param preferences
-	 *            the CSV preferences
-	 * @throws NullPointerException
-	 *             if tokenizer or preferences are null
-	 */
-	public CsvMapReader(final ITokenizer tokenizer, final CsvPreference preferences) {
-		super(tokenizer, preferences);
-	}
-	
-	/**
 	 * {@inheritDoc}
 	 */
 	public Map<String, String> read(final String... nameMapping) throws IOException {

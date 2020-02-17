@@ -72,6 +72,8 @@ public interface ICsvReader extends Closeable {
 	 * @since 2.0.0
 	 */
 	String getUntokenizedRow();
+
+	String getUndecodedRow();
 	
 	/**
 	 * Gets the current row number (i.e. the number of CSV records - including the header - that have been read). This

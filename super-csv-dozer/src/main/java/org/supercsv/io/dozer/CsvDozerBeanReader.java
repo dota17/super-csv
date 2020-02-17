@@ -62,23 +62,6 @@ public class CsvDozerBeanReader extends AbstractCsvReader implements ICsvDozerBe
 	}
 	
 	/**
-	 * Constructs a new <tt>CsvDozerBeanReader</tt> with the supplied (custom) Tokenizer and CSV preferences and creates
-	 * it's own DozerBeanMapper. The tokenizer should be set up with the Reader (CSV input) and CsvPreference
-	 * beforehand.
-	 * 
-	 * @param tokenizer
-	 *            the tokenizer
-	 * @param preferences
-	 *            the CSV preferences
-	 * @throws NullPointerException
-	 *             if tokenizer or preferences are null
-	 */
-	public CsvDozerBeanReader(final ITokenizer tokenizer, final CsvPreference preferences) {
-		super(tokenizer, preferences);
-		this.dozerBeanMapper = new DozerBeanMapper();
-	}
-	
-	/**
 	 * Constructs a new <tt>CsvDozerBeanReader</tt> with the supplied Reader, CSV preferences and DozerBeanMapper. Note
 	 * that the <tt>reader</tt> will be wrapped in a <tt>BufferedReader</tt> before accessed.
 	 * 
@@ -94,28 +77,6 @@ public class CsvDozerBeanReader extends AbstractCsvReader implements ICsvDozerBe
 	public CsvDozerBeanReader(final Reader reader, final CsvPreference preferences,
 		final DozerBeanMapper dozerBeanMapper) {
 		super(reader, preferences);
-		if( dozerBeanMapper == null ) {
-			throw new NullPointerException("dozerBeanMapper should not be null");
-		}
-		this.dozerBeanMapper = dozerBeanMapper;
-	}
-	
-	/**
-	 * Constructs a new <tt>CsvDozerBeanReader</tt> with the supplied (custom) Tokenizer, CSV preferences and
-	 * DozerBeanMapper. The tokenizer should be set up with the Reader (CSV input) and CsvPreference beforehand.
-	 * 
-	 * @param tokenizer
-	 *            the tokenizer
-	 * @param preferences
-	 *            the CSV preferences
-	 * @param dozerBeanMapper
-	 *            the dozer bean mapper to use
-	 * @throws NullPointerException
-	 *             if tokenizer, preferences or dozerBeanMapper are null
-	 */
-	public CsvDozerBeanReader(final ITokenizer tokenizer, final CsvPreference preferences,
-		final DozerBeanMapper dozerBeanMapper) {
-		super(tokenizer, preferences);
 		if( dozerBeanMapper == null ) {
 			throw new NullPointerException("dozerBeanMapper should not be null");
 		}

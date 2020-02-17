@@ -65,21 +65,6 @@ public class CsvBeanReader extends AbstractCsvReader implements ICsvBeanReader {
 	}
 	
 	/**
-	 * Constructs a new <tt>CsvBeanReader</tt> with the supplied (custom) Tokenizer and CSV preferences. The tokenizer
-	 * should be set up with the Reader (CSV input) and CsvPreference beforehand.
-	 * 
-	 * @param tokenizer
-	 *            the tokenizer
-	 * @param preferences
-	 *            the CSV preferences
-	 * @throws NullPointerException
-	 *             if tokenizer or preferences are null
-	 */
-	public CsvBeanReader(final ITokenizer tokenizer, final CsvPreference preferences) {
-		super(tokenizer, preferences);
-	}
-	
-	/**
 	 * Instantiates the bean (or creates a proxy if it's an interface).
 	 * 
 	 * @param clazz

@@ -16,11 +16,14 @@
 package org.supercsv.io;
 
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.comment.CommentMatcher;
+import org.supercsv.decoder.CsvDecoder;
 import org.supercsv.exception.SuperCsvConstraintViolationException;
 import org.supercsv.exception.SuperCsvException;
 import org.supercsv.prefs.CsvPreference;
@@ -33,11 +36,19 @@ import org.supercsv.util.Util;
  * @author James Bassett
  */
 public abstract class AbstractCsvReader implements ICsvReader {
-	
-	private final ITokenizer tokenizer;
+
+	private final LineNumberReader lnr;
 	
 	private final CsvPreference preferences;
-	
+
+	private final CsvDecoder decoder;
+
+	private boolean ignoreEmptyLines;
+
+	private CommentMatcher commentMatcher;
+
+	private final StringBuilder unDecodedRow = new StringBuilder();
+
 	// the current tokenized columns
 	private final List<String> columns = new ArrayList<String>();
 	
@@ -62,37 +73,17 @@ public abstract class AbstractCsvReader implements ICsvReader {
 		}
 		
 		this.preferences = preferences;
-		this.tokenizer = new Tokenizer(reader, preferences);
-	}
-	
-	/**
-	 * Constructs a new <tt>AbstractCsvReader</tt>, using a custom {@link Tokenizer} (which should have already been set
-	 * up with the Reader, CsvPreference, and CsvContext). This constructor should only be used if the default Tokenizer
-	 * doesn't provide the required functionality.
-	 * 
-	 * @param tokenizer
-	 *            the tokenizer
-	 * @param preferences
-	 *            the CSV preferences
-	 * @throws NullPointerException
-	 *             if tokenizer or preferences are null
-	 */
-	public AbstractCsvReader(final ITokenizer tokenizer, final CsvPreference preferences) {
-		if( tokenizer == null ) {
-			throw new NullPointerException("tokenizer should not be null");
-		} else if( preferences == null ) {
-			throw new NullPointerException("preferences should not be null");
-		}
-		
-		this.preferences = preferences;
-		this.tokenizer = tokenizer;
+		this.decoder = preferences.getDecoder();
+		this.ignoreEmptyLines = preferences.isIgnoreEmptyLines();
+		this.commentMatcher = preferences.getCommentMatcher();
+		this.lnr = new LineNumberReader(reader);
 	}
 	
 	/**
 	 * Closes the Tokenizer and its associated Reader.
 	 */
 	public void close() throws IOException {
-		tokenizer.close();
+		lnr.close();
 	}
 	
 	/**
@@ -107,10 +98,10 @@ public abstract class AbstractCsvReader implements ICsvReader {
 	 */
 	public String[] getHeader(final boolean firstLineCheck) throws IOException {
 		
-		if( firstLineCheck && tokenizer.getLineNumber() != 0 ) {
+		if( firstLineCheck && lnr.getLineNumber() != 0 ) {
 			throw new SuperCsvException(String.format(
 				"CSV header must be fetched as the first read operation, but %d lines have already been read",
-				tokenizer.getLineNumber()));
+				lnr.getLineNumber()));
 		}
 		
 		if( readRow() ) {
@@ -124,14 +115,18 @@ public abstract class AbstractCsvReader implements ICsvReader {
 	 * {@inheritDoc}
 	 */
 	public int getLineNumber() {
-		return tokenizer.getLineNumber();
+		return lnr.getLineNumber();
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getUntokenizedRow() {
-		return tokenizer.getUntokenizedRow();
+		return unDecodedRow.toString();
+	}
+
+	public String getUndecodedRow() {
+		return unDecodedRow.toString();
 	}
 	
 	/**
@@ -176,11 +171,23 @@ public abstract class AbstractCsvReader implements ICsvReader {
 	 *             on errors in parsing the input
 	 */
 	protected boolean readRow() throws IOException {
-		if( tokenizer.readColumns(columns) ) {
-			rowNumber++;
-			return true;
-		}
-		return false;
+		columns.clear();
+		unDecodedRow.setLength(0);
+		String line;
+		do {
+			if(getLineNumber() == 0){
+				line = Util.subtractBom(lnr.readLine());
+			}else{
+				line = lnr.readLine();
+			}
+			if(line == null) {
+				return false;
+			}
+		}while( ignoreEmptyLines && line.length() == 0 || (commentMatcher != null && commentMatcher.isComment(line)) );
+		unDecodedRow.append(line);
+		columns.addAll(decoder.decode(line, preferences));
+		rowNumber++;
+		return true;
 	}
 	
 	/**
